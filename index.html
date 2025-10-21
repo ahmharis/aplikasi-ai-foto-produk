@@ -295,7 +295,7 @@
                                     </button>
                                 </div>
                                 <div id="ps-results-container" class="hidden">
-                                    <h3 class="text-xl md:text-2xl font-bold text-center mb-6 text-gray-800">4 Variasi Foto Produk</h3>
+                                    <h3 class="text-xl md:text-2xl font-bold text-center mb-6 text-gray-800">2 Variasi Foto Produk</h3>
                                     <div id="ps-results-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
                                 </div>
                             </div>
@@ -341,7 +341,7 @@
                                     </div>
                                      <div>
                                         <button id="vto-generate-btn" class="w-full text-white font-bold py-3 px-8 rounded-lg text-lg bg-gradient-to-r from-teal-500 to-cyan-500 shadow-md hover:shadow-lg hover:-translate-y-px transition-all duration-300 disabled:bg-slate-200 disabled:shadow-none disabled:translate-y-0">
-                                            Buat 4 Variasi Foto Produk
+                                            Buat 2 Variasi Foto Produk
                                         </button>
                                         <p id="vto-status-message" class="text-red-500 mt-2 h-6 text-center"></p>
                                     </div>
@@ -401,7 +401,7 @@
                                     </div>
                                 </div>
                                 <button id="bnr-generate-btn" class="w-full text-white font-bold py-2.5 px-4 rounded-lg flex items-center justify-center text-base md:text-lg bg-gradient-to-r from-teal-500 to-cyan-500 shadow-md hover:shadow-lg hover:-translate-y-px transition-all duration-300 disabled:bg-slate-200 disabled:shadow-none disabled:translate-y-0" disabled>
-                                    <span>Buat 4 Variasi Poster</span>
+                                    <span>Buat 2 Variasi Poster</span>
                                 </button>
                             </div>
                         </div>
@@ -661,7 +661,8 @@
 
             psResultsContainer.classList.remove('hidden');
             psResultsGrid.innerHTML = '';
-             for (let i = 1; i <= 4; i++) {
+             // PERUBAHAN: Buat 2 placeholder, bukan 4
+             for (let i = 1; i <= 2; i++) {
                 const card = document.createElement('div');
                 card.id = `ps-card-${i}`;
                 card.className = `card overflow-hidden bg-gray-100 flex items-center justify-center ${aspectClass}`;
@@ -696,8 +697,8 @@
                 { id: 4, name: 'Studio Photo', prompt: `Professional studio product photography. The product is placed on a clean, reflective surface against a seamless, neutral-colored studio background. Analyze the main product and place a few thematically relevant, smaller objects or props around it to create an appealing composition. The lighting should be soft, multi-point studio lighting that eliminates harsh shadows and highlights the product's details and texture. The final image must be ultra-realistic, sharp, and high-resolution, while adhering to these user instructions: "${userInstructions}"` }
             ];
 
-            // PERBAIKAN: Mengganti proses paralel dengan sekuensial
-            for (const effect of effects) {
+            // PERUBAHAN: Proses hanya 2 efek pertama secara sekuensial
+            for (const effect of effects.slice(0, 2)) {
                 await generateProductOnlyImage(effect, aspectRatio);
             }
 
@@ -982,7 +983,8 @@
             vtoResultsContainer.classList.remove('hidden');
             vtoResultsContainer.classList.add('flex');
             vtoResultsGrid.innerHTML = '';
-            const cardIds = [1, 2, 3, 4];
+             // PERUBAHAN: Buat 2 placeholder, bukan 4
+            const cardIds = [1, 2];
             for(const id of cardIds) {
                 const card = document.createElement('div');
                 card.id = `vto-card-${id}`;
@@ -993,7 +995,7 @@
             lucide.createIcons();
             
             try {
-                // PERBAIKAN: Mengganti proses paralel dengan sekuensial
+                // PERUBAHAN: Proses hanya 2 ID secara sekuensial
                 for (const id of cardIds) {
                     await generateSingleVTOImage(id, vtoProductData, vtoModelData, aspectRatio);
                 }
@@ -1141,7 +1143,8 @@ Pastikan setiap poin diisi dengan deskripsi yang kreatif dan profesional. Jangan
             bnrResultsContainer.classList.remove('hidden');
             bnrResultsGrid.className = 'grid grid-cols-1 md:grid-cols-2 gap-6';
             bnrResultsGrid.innerHTML = '';
-            for(let i=1; i<=4; i++) {
+            // PERUBAHAN: Buat 2 placeholder, bukan 4
+            for(let i=1; i<=2; i++) {
                 const card = document.createElement('div');
                 card.id = `bnr-card-${i}`;
                 card.className = `card overflow-hidden transition-all ${aspectClass} bg-gray-100 flex items-center justify-center`;
@@ -1152,9 +1155,9 @@ Pastikan setiap poin diisi dengan deskripsi yang kreatif dan profesional. Jangan
             
             try {
                 const bannerVariations = await getBannerVariations();
-                // PERBAIKAN: Mengganti proses paralel dengan sekuensial
+                // PERUBAHAN: Proses hanya 2 ide pertama secara sekuensial
                 let index = 1;
-                for (const idea of bannerVariations.slice(0, 4)) {
+                for (const idea of bannerVariations.slice(0, 2)) {
                     await generateSingleBannerImage(index, idea.title, idea.prompt, aspectRatio);
                     index++;
                 }
@@ -1163,13 +1166,14 @@ Pastikan setiap poin diisi dengan deskripsi yang kreatif dan profesional. Jangan
                 bnrResultsGrid.innerHTML = `<div class="col-span-1 md:col-span-2 text-center py-10 text-red-500"><p>Terjadi kesalahan saat membuat variasi banner: ${error.message}</p></div>`;
             } finally {
                 bnrGenerateBtn.disabled = false;
-                bnrGenerateBtn.innerHTML = `<span>Buat 4 Variasi Poster</span>`;
+                bnrGenerateBtn.innerHTML = `<span>Buat 2 Variasi Poster</span>`;
             }
         });
         
         async function getBannerVariations() {
             const targetUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent`;
-            const systemPrompt = `You are an expert AI graphic designer for social media banners. Analyze the provided image, banner text, and requested style. Generate 4 distinct banner design ideas. For each, provide a JSON object with a 'title' (short name in Indonesian) and a 'prompt' (detailed English prompt for an image generation AI). The prompt MUST instruct the AI to creatively place the provided banner text onto the original image, adhering to the specified style. Describe text placement, font style, color scheme, and any subtle background enhancements or graphic elements. The original image content must not be altered, only enhanced. Respond ONLY with a valid JSON array of 4 objects.`;
+            // PERUBAHAN: Minta 2 ide, bukan 4
+            const systemPrompt = `You are an expert AI graphic designer for social media banners. Analyze the provided image, banner text, and requested style. Generate 2 distinct banner design ideas. For each, provide a JSON object with a 'title' (short name in Indonesian) and a 'prompt' (detailed English prompt for an image generation AI). The prompt MUST instruct the AI to creatively place the provided banner text onto the original image, adhering to the specified style. Describe text placement, font style, color scheme, and any subtle background enhancements or graphic elements. The original image content must not be altered, only enhanced. Respond ONLY with a valid JSON array of 2 objects.`;
             let userQuery = `Banner Text: "${bnrDescInput.value.trim()}"\nDesign Style: "${bnrStyleInput.value.trim()}"`;
             
             const parts = [{ text: userQuery }, { inlineData: { mimeType: bnrUploadedImageData.mimeType, data: bnrUploadedImageData.base64 } }];
