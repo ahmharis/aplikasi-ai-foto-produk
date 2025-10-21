@@ -1,5 +1,6 @@
 // File: api/generate.js
-// Ini adalah backend serverless kita.
+// PERBAIKAN: Menambahkan durasi maksimum untuk fungsi serverless
+export const maxDuration = 60;
 
 export default async function handler(req, res) {
   // Hanya izinkan metode POST
