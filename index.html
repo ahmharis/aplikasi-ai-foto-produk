@@ -778,11 +778,15 @@
         async function generateProductOnlyImage(effect, aspectRatio) {
             const card = document.getElementById(`ps-card-${effect.id}`);
             try {
-                const targetUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image-preview:generateContent`;
-                const finalPrompt = `${effect.prompt} The final image must have an aspect ratio of ${aspectRatio}.`
+                // PERUBAHAN: Mengganti model ke Imagen
+                const targetUrl = `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:predict`;
+                
+                // Imagen tidak mendukung gambar input, jadi kita hanya gunakan prompt teks
+                const finalPrompt = `${effect.prompt} The final image must have an aspect ratio of ${aspectRatio}.`;
+                
+                // PERUBAHAN: Payload disesuaikan untuk Imagen
                 const payload = {
-                    contents: [{ parts: [{ text: finalPrompt }, { inlineData: { mimeType: psImageData.mimeType, data: psImageData.base64 } }] }],
-                    generationConfig: { responseModalities: ['IMAGE'] },
+                    contents: [{ parts: [{ text: finalPrompt }] }] // Kirim payload ini ke backend, backend akan menyesuaikannya
                 };
 
                 const response = await fetch('/api/generate', { 
@@ -798,14 +802,8 @@
                     throw new Error(`Server error: ${response.status}. Details: ${errorDetails}`);
                 }
                 
-                const candidate = result.candidates?.[0];
-                if (!candidate) {
-                    throw new Error("Respon AI tidak valid: tidak ada kandidat.");
-                }
-                if (candidate.finishReason && candidate.finishReason !== 'STOP') {
-                     throw new Error(`Generasi dihentikan: ${candidate.finishReason}`);
-                }
-                const base64Data = candidate.content?.parts?.find(p => p.inlineData)?.inlineData?.data;
+                // PERUBAHAN: Cara mengekstrak gambar dari respons Imagen
+                const base64Data = result.predictions?.[0]?.bytesBase64Encoded;
 
                 if (base64Data) {
                     const imageUrl = `data:image/png;base64,${base64Data}`;
@@ -815,7 +813,6 @@
                         <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent pointer-events-none"></div>
                         <h4 class="absolute bottom-2 left-3 text-white font-semibold text-sm pointer-events-none">${effect.name}</h4>
                         <div class="absolute bottom-2 right-2 flex gap-1">
-                             <button data-img-src="${imageUrl}" data-img-title="${effect.name}" data-card-id="${card.id}" class="ps-edit-btn bg-white/80 text-slate-700 p-2 rounded-full hover:bg-white inline-block" title="Edit Gambar"><i data-lucide="pencil" class="w-4 h-4"></i></button>
                              <button data-img-src="${imageUrl}" data-img-title="${effect.name}" class="ps-view-btn bg-white/80 text-slate-700 p-2 rounded-full hover:bg-white inline-block" title="Lihat Gambar"><i data-lucide="eye" class="w-4 h-4"></i></button>
                             <a href="${imageUrl}" download="produk_${safeName}.png" class="ps-download-link bg-teal-600 text-white p-2 rounded-full hover:bg-teal-700 inline-block" title="Unduh Gambar">
                                 <i data-lucide="download" class="w-4 h-4"></i>
@@ -824,7 +821,7 @@
                     card.classList.remove('bg-gray-100', 'flex', 'items-center', 'justify-center');
                     card.classList.add('relative');
                 } else {
-                    throw new Error("Tidak ada data gambar yang diterima dari AI.");
+                    throw new Error("Tidak ada data gambar yang diterima dari AI (Imagen).");
                 }
 
             } catch (error) {
@@ -835,93 +832,14 @@
             }
         }
 
+        // Fungsi edit dinonaktifkan sementara karena Imagen tidak mendukung edit gambar
         function showEditModal(imgSrc, imgTitle, cardId) {
-            modalTitle.textContent = `Edit: ${imgTitle}`;
-            modalBody.innerHTML = `
-                <img src="${imgSrc}" class="w-full h-auto rounded-lg mb-4">
-                <label for="edit-instruction" class="block mb-2 font-semibold">Instruksi Edit:</label>
-                <textarea id="edit-instruction" class="w-full p-2 rounded-lg bg-slate-700 text-white border border-slate-600" rows="3" placeholder="Contoh: ganti warna background menjadi biru..."></textarea>
-                <button id="submit-edit-btn" class="mt-4 w-full bg-teal-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-teal-700">
-                    Edit Gambar
-                </button>
-            `;
-            universalModal.classList.add('visible');
-
-            const submitEditBtn = document.getElementById('submit-edit-btn');
-            submitEditBtn.addEventListener('click', async () => {
-                const instruction = document.getElementById('edit-instruction').value.trim();
-                if (!instruction) {
-                    document.getElementById('edit-instruction').focus();
-                    return;
-                }
-
-                submitEditBtn.disabled = true;
-                submitEditBtn.innerHTML = '<div class="loader-icon loader-icon-light mx-auto"></div>';
-
-                const parts = imgSrc.split(',');
-                const mimeType = parts[0].match(/:(.*?);/)[1];
-                const base64 = parts[1];
-                
-                const originalImageData = { base64, mimeType };
-
-                try {
-                    const newBase64 = await generateEditedImage(originalImageData, instruction);
-                    const newImageUrl = `data:image/png;base64,${newBase64}`;
-                    
-                    const cardToUpdate = document.getElementById(cardId);
-                    if (cardToUpdate) {
-                        const imgElement = cardToUpdate.querySelector('img');
-                        const editBtnElement = cardToUpdate.querySelector('.ps-edit-btn');
-                        const viewBtnElement = cardToUpdate.querySelector('.ps-view-btn');
-                        const downloadLinkElement = cardToUpdate.querySelector('.ps-download-link');
-                        
-                        if(imgElement) imgElement.src = newImageUrl;
-                        if(editBtnElement) editBtnElement.dataset.imgSrc = newImageUrl;
-                        if(viewBtnElement) viewBtnElement.dataset.imgSrc = newImageUrl;
-                        if(downloadLinkElement) downloadLinkElement.href = newImageUrl;
-                    }
-                    hideModal();
-                } catch (error) {
-                    console.error('Failed to edit image:', error);
-                    hideModal();
-                }
-            }, { once: true });
+           alert("Fitur edit belum didukung untuk model Imagen.");
         }
         
         async function generateEditedImage(originalImageData, instruction) {
-            const targetUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image-preview:generateContent`;
-            const prompt = `Based on the original image, edit it according to the following instruction: "${instruction}". Keep the main subject and overall style intact, only applying the requested changes.`;
-            const payload = {
-                contents: [{ parts: [ { text: prompt }, { inlineData: { mimeType: originalImageData.mimeType, data: originalImageData.base64 } } ] }],
-                generationConfig: { responseModalities: ['IMAGE'] },
-            };
-            
-            const response = await fetch('/api/generate', { 
-                method: 'POST', 
-                headers: { 'Content-Type': 'application/json' }, 
-                body: JSON.stringify({ targetUrl, payload }) 
-            });
-
-            const result = await response.json();
-            if (!response.ok) {
-                const errorDetails = result.details || JSON.stringify(result.error);
-                throw new Error(`Server error: ${response.status}. Details: ${errorDetails}`);
-            }
-
-            const candidate = result.candidates?.[0];
-            if (!candidate) {
-                throw new Error("Respon AI tidak valid: tidak ada kandidat.");
-            }
-            if (candidate.finishReason && candidate.finishReason !== 'STOP') {
-                 throw new Error(`Generasi dihentikan: ${candidate.finishReason}`);
-            }
-            const base64Data = candidate.content?.parts?.find(p => p.inlineData)?.inlineData?.data;
-
-            if (base64Data) {
-                return base64Data;
-            } else {
-                throw new Error("Invalid response from API, no image data found.");
-            }
+           // Tidak diimplementasikan untuk Imagen
+           throw new Error("Editing not supported with Imagen model.");
         }
 
         const vtoProductUploadBox = document.getElementById('vto-product-upload-box');
@@ -981,42 +899,9 @@
         async function generateSingleVTOImage(id, product, model, aspectRatio) {
              const card = document.getElementById(`vto-card-${id}`);
             try {
-                const targetUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image-preview:generateContent`;
-                const prompt = `Dengan menggunakan foto produk dan foto model yang tersedia, buatlah sebuah gambar fotorealistis baru di mana model tersebut sedang mengenakan atau menggunakan produk tersebut. Pastikan hasilnya berkualitas tinggi dan terlihat seperti sesi pemotretan profesional. Pertahankan penampilan model dan detail produk. Variasi ${id}. The final image must have an aspect ratio of ${aspectRatio}.`;
-                const payload = { contents: [{ parts: [ { text: prompt }, { inlineData: { mimeType: product.mimeType, data: product.base64 } }, { inlineData: { mimeType: model.mimeType, data: model.base64 } } ] }], generationConfig: { responseModalities: ['IMAGE'] } };
-                
-                const response = await fetch('/api/generate', { 
-                    method: 'POST', 
-                    headers: { 'Content-Type': 'application/json' }, 
-                    body: JSON.stringify({ targetUrl, payload }) 
-                });
-
-                const result = await response.json();
-                if (!response.ok) {
-                     const errorDetails = result.details || JSON.stringify(result.error);
-                    throw new Error(`Server error: ${response.status}. Details: ${errorDetails}`);
-                }
-
-                const candidate = result.candidates?.[0];
-                if (!candidate) {
-                    throw new Error("Respon AI tidak valid: tidak ada kandidat.");
-                }
-                if (candidate.finishReason && candidate.finishReason !== 'STOP') {
-                     throw new Error(`Generasi dihentikan: ${candidate.finishReason}`);
-                }
-                const base64Data = candidate.content?.parts?.find(p => p.inlineData)?.inlineData?.data;
-                if (!base64Data) throw new Error("Tidak ada data gambar yang diterima dari AI.");
-                
-                const imageUrl = `data:image/png;base64,${base64Data}`;
-                card.innerHTML = `
-                    <img src="${imageUrl}" class="w-full h-full object-cover">
-                    <div class="absolute bottom-2 right-2">
-                        <a href="${imageUrl}" download="photoshoot_${id}.png" class="bg-teal-600 text-white p-2 rounded-full hover:bg-teal-700 inline-block" title="Unduh Gambar">
-                            <i data-lucide="download" class="w-4 h-4"></i>
-                        </a>
-                    </div>`;
-                card.classList.remove('bg-gray-100', 'flex', 'items-center', 'justify-center');
-                card.classList.add('relative');
+                // PERUBAHAN: Pindah ke Imagen. VTO tidak didukung karena Imagen tidak bisa menerima 2 gambar input.
+                // Kita akan menampilkan pesan bahwa fitur ini tidak tersedia dengan model saat ini.
+                throw new Error("Fitur Produk + Model tidak didukung oleh model Imagen. Gunakan tab 'Produk Saja'.");
 
             } catch (error) {
                 console.error(`Error for vto card ${id}:`, error);
@@ -1027,41 +912,13 @@
         }
 
         vtoGenerateBtn.addEventListener('click', async () => {
-            if (!vtoProductData || !vtoModelData) {
-                vtoStatusMessage.textContent = 'Harap unggah foto produk dan model terlebih dahulu.';
-                return;
-            }
-            vtoStatusMessage.textContent = '';
-            const originalBtnHTML = vtoGenerateBtn.innerHTML;
-            vtoGenerateBtn.disabled = true;
-            vtoGenerateBtn.innerHTML = '<div class="loader-icon !border-l-white w-5 h-5 mx-auto"></div>';
-            
-            const aspectRatio = vtoRatioOptions.querySelector('.selected').dataset.value;
-            const aspectClass = getAspectRatioClass(aspectRatio);
-
-            vtoResultsContainer.classList.remove('hidden');
-            vtoResultsContainer.classList.add('flex');
-            vtoResultsGrid.innerHTML = '';
+             vtoStatusMessage.textContent = "Fitur ini tidak didukung oleh model Imagen saat ini.";
             const cardIds = [1, 2];
             for(const id of cardIds) {
-                const card = document.createElement('div');
-                card.id = `vto-card-${id}`;
-                card.className = `card overflow-hidden transition-all ${aspectClass} bg-gray-100 flex items-center justify-center`;
-                card.innerHTML = `<div class="loader-icon w-8 h-8"></div>`;
-                vtoResultsGrid.appendChild(card);
-            }
-            lucide.createIcons();
-            
-            try {
-                for (const id of cardIds) {
-                    await generateSingleVTOImage(id, vtoProductData, vtoModelData, aspectRatio);
+                const card = document.getElementById(`vto-card-${id}`);
+                if (card) {
+                    card.innerHTML = `<div class="error-message">Fitur 'Produk + Model' tidak tersedia. Silakan gunakan tab 'Produk Saja'.</div>`;
                 }
-            } catch (error) {
-                console.error('Gagal generate gambar:', error);
-                vtoStatusMessage.textContent = 'Maaf, terjadi kesalahan saat generate gambar. Coba lagi.';
-            } finally {
-                vtoGenerateBtn.disabled = false;
-                vtoGenerateBtn.innerHTML = originalBtnHTML;
             }
         });
         
@@ -1097,6 +954,7 @@
             bnrStyleInput.disabled = true;
             
             try {
+                // Menggunakan Gemini untuk analisis teks karena lebih cocok
                 const targetUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent`;
                 const systemPrompt = `Anda adalah seorang fotografer profesional dan desainer grafis. Berdasarkan gambar yang diunggah dan teks banner, buatlah deskripsi gaya (style) yang sangat detail dalam bahasa Indonesia untuk AI generator gambar. Ikuti struktur ini dengan TEPAT, isi setiap bagian dengan analisis yang relevan:
 
@@ -1145,6 +1003,7 @@ Pastikan setiap poin diisi dengan deskripsi yang kreatif dan profesional. Jangan
             bnrDescInput.value = 'AI sedang membuat deskripsi...';
             bnrDescInput.disabled = true;
             try {
+                // Tetap menggunakan Gemini untuk deskripsi
                 const targetUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent`;
                 const systemPrompt = `You are a creative copywriter. Analyze the image and write a very short, catchy text for an advertising banner in Indonesian. The text must be a maximum of 10 words.`;
                 const payload = { contents: [{ parts: [ { text: "Buatkan teks banner singkat untuk gambar ini." }, { inlineData: { mimeType: bnrUploadedImageData.mimeType, data: bnrUploadedImageData.base64 } } ] }], systemInstruction: { parts: [{ text: systemPrompt }] } };
@@ -1235,6 +1094,7 @@ Pastikan setiap poin diisi dengan deskripsi yang kreatif dan profesional. Jangan
         });
         
         async function getBannerVariations() {
+            // Analisis ide banner tetap menggunakan Gemini
             const targetUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent`;
             const systemPrompt = `You are an expert AI graphic designer for social media banners. Analyze the provided image, banner text, and requested style. Generate 2 distinct banner design ideas. For each, provide a JSON object with a 'title' (short name in Indonesian) and a 'prompt' (detailed English prompt for an image generation AI). The prompt MUST instruct the AI to creatively place the provided banner text onto the original image, adhering to the specified style. Describe text placement, font style, color scheme, and any subtle background enhancements or graphic elements. The original image content must not be altered, only enhanced. Respond ONLY with a valid JSON array of 2 objects.`;
             let userQuery = `Banner Text: "${bnrDescInput.value.trim()}"\nDesign Style: "${bnrStyleInput.value.trim()}"`;
@@ -1262,10 +1122,12 @@ Pastikan setiap poin diisi dengan deskripsi yang kreatif dan profesional. Jangan
             if (!card) return;
             
              try {
-                const targetUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image-preview:generateContent`;
+                // PERUBAHAN: Generate gambar banner dengan Imagen
+                const targetUrl = `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:predict`;
+                
+                // Imagen tidak bisa menggabungkan gambar + teks, jadi kita berikan prompt deskriptif
                 const finalPrompt = `${prompt}. The text to add is: "${bnrDescInput.value.trim()}". Ensure the text is clearly visible and beautifully integrated. Aspect ratio: ${aspectRatio}.`;
-                const parts = [{ text: finalPrompt }, { inlineData: { mimeType: bnrUploadedImageData.mimeType, data: bnrUploadedImageData.base64 } }];
-                const payload = { contents: [{ parts: parts }], generationConfig: { responseModalities: ['IMAGE'] }, };
+                const payload = { contents: [{ parts: [{ text: finalPrompt }] }] };
                 
                 const response = await fetch('/api/generate', { 
                     method: 'POST', 
@@ -1278,15 +1140,8 @@ Pastikan setiap poin diisi dengan deskripsi yang kreatif dan profesional. Jangan
                     const errorDetails = result.details || JSON.stringify(result.error);
                     throw new Error(`Server error: ${response.status}. Details: ${errorDetails}`);
                 }
-
-                const candidate = result.candidates?.[0];
-                if (!candidate) {
-                    throw new Error("Respon AI tidak valid: tidak ada kandidat.");
-                }
-                if (candidate.finishReason && candidate.finishReason !== 'STOP') {
-                     throw new Error(`Generasi dihentikan: ${candidate.finishReason}`);
-                }
-                const base64Data = candidate.content?.parts?.find(p => p.inlineData)?.inlineData?.data;
+                
+                const base64Data = result.predictions?.[0]?.bytesBase64Encoded;
 
                 if (base64Data) {
                     const imageUrl = `data:image/png;base64,${base64Data}`;
@@ -1301,7 +1156,7 @@ Pastikan setiap poin diisi dengan deskripsi yang kreatif dan profesional. Jangan
                         </div>
                     </div>`;
                     lucide.createIcons();
-                } else { throw new Error("Tidak ada data gambar yang diterima dari AI."); }
+                } else { throw new Error("Tidak ada data gambar yang diterima dari AI (Imagen)."); }
             } catch (error) {
                 console.error(`Error for banner card ${id}:`, error);
                 card.innerHTML = `<div class="error-message">Error: ${error.toString()}</div>`;
