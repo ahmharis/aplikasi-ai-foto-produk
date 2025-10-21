@@ -707,15 +707,14 @@
         async function generateProductOnlyImage(effect, aspectRatio) {
             const card = document.getElementById(`ps-card-${effect.id}`);
             try {
-                const apiKey = "";
-                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image-preview:generateContent?key=${apiKey}`;
-                const finalPrompt = `${effect.prompt} The final image must have an aspect ratio of ${aspectRatio}.`
-                const payload = {
-                    contents: [{ parts: [{ text: finalPrompt }, { inlineData: { mimeType: psImageData.mimeType, data: psImageData.base64 } }] }],
-                    generationConfig: { responseModalities: ['IMAGE'] },
-                };
-
-                const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                // ... contoh kode baru di dalam fungsi generateProductOnlyImage ...
+			const targetUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image-preview:generateContent`;
+			const response = await fetch('/api/generate', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ targetUrl, payload }) // Kirim URL target dan payload ke backend
+});
+// ...
                 if (!response.ok) throw new Error(`API error: ${response.statusText}`);
                 const result = await response.json();
                 
