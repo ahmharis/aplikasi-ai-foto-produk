@@ -696,8 +696,10 @@
                 { id: 4, name: 'Studio Photo', prompt: `Professional studio product photography. The product is placed on a clean, reflective surface against a seamless, neutral-colored studio background. Analyze the main product and place a few thematically relevant, smaller objects or props around it to create an appealing composition. The lighting should be soft, multi-point studio lighting that eliminates harsh shadows and highlights the product's details and texture. The final image must be ultra-realistic, sharp, and high-resolution, while adhering to these user instructions: "${userInstructions}"` }
             ];
 
-            const generationPromises = effects.map(effect => generateProductOnlyImage(effect, aspectRatio));
-            await Promise.allSettled(generationPromises);
+            // PERBAIKAN: Mengganti proses paralel dengan sekuensial
+            for (const effect of effects) {
+                await generateProductOnlyImage(effect, aspectRatio);
+            }
 
             psGenerateBtn.disabled = false;
             psGenerateBtn.innerHTML = originalBtnHTML;
@@ -980,9 +982,10 @@
             vtoResultsContainer.classList.remove('hidden');
             vtoResultsContainer.classList.add('flex');
             vtoResultsGrid.innerHTML = '';
-            for(let i=1; i<=4; i++) {
+            const cardIds = [1, 2, 3, 4];
+            for(const id of cardIds) {
                 const card = document.createElement('div');
-                card.id = `vto-card-${i}`;
+                card.id = `vto-card-${id}`;
                 card.className = `card overflow-hidden transition-all ${aspectClass} bg-gray-100 flex items-center justify-center`;
                 card.innerHTML = `<div class="loader-icon w-8 h-8"></div>`;
                 vtoResultsGrid.appendChild(card);
@@ -990,8 +993,10 @@
             lucide.createIcons();
             
             try {
-                const generationPromises = [1,2,3,4].map(i => generateSingleVTOImage(i, vtoProductData, vtoModelData, aspectRatio));
-                await Promise.allSettled(generationPromises);
+                // PERBAIKAN: Mengganti proses paralel dengan sekuensial
+                for (const id of cardIds) {
+                    await generateSingleVTOImage(id, vtoProductData, vtoModelData, aspectRatio);
+                }
             } catch (error) {
                 console.error('Gagal generate gambar:', error);
                 vtoStatusMessage.textContent = 'Maaf, terjadi kesalahan saat generate gambar. Coba lagi.';
@@ -1147,8 +1152,12 @@ Pastikan setiap poin diisi dengan deskripsi yang kreatif dan profesional. Jangan
             
             try {
                 const bannerVariations = await getBannerVariations();
-                const generationPromises = bannerVariations.slice(0, 4).map((idea, index) => generateSingleBannerImage(index + 1, idea.title, idea.prompt, aspectRatio));
-                await Promise.allSettled(generationPromises);
+                // PERBAIKAN: Mengganti proses paralel dengan sekuensial
+                let index = 1;
+                for (const idea of bannerVariations.slice(0, 4)) {
+                    await generateSingleBannerImage(index, idea.title, idea.prompt, aspectRatio);
+                    index++;
+                }
             } catch (error) {
                 console.error("Error during banner generation process:", error);
                 bnrResultsGrid.innerHTML = `<div class="col-span-1 md:col-span-2 text-center py-10 text-red-500"><p>Terjadi kesalahan saat membuat variasi banner: ${error.message}</p></div>`;
