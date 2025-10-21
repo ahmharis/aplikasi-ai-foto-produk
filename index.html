@@ -177,6 +177,15 @@
             margin-top: 0.5rem;
             height: 1rem;
         }
+        .error-message {
+            font-size: 0.75rem;
+            color: #ef4444;
+            padding: 0.5rem;
+            text-align: center;
+            white-space: pre-wrap;
+            word-break: break-all;
+            line-height: 1.2;
+        }
     </style>
 </head>
 <body class="bg-gradient-to-br from-slate-50 to-gray-100">
@@ -661,7 +670,6 @@
 
             psResultsContainer.classList.remove('hidden');
             psResultsGrid.innerHTML = '';
-             // PERUBAHAN: Buat 2 placeholder, bukan 4
              for (let i = 1; i <= 2; i++) {
                 const card = document.createElement('div');
                 card.id = `ps-card-${i}`;
@@ -697,7 +705,6 @@
                 { id: 4, name: 'Studio Photo', prompt: `Professional studio product photography. The product is placed on a clean, reflective surface against a seamless, neutral-colored studio background. Analyze the main product and place a few thematically relevant, smaller objects or props around it to create an appealing composition. The lighting should be soft, multi-point studio lighting that eliminates harsh shadows and highlights the product's details and texture. The final image must be ultra-realistic, sharp, and high-resolution, while adhering to these user instructions: "${userInstructions}"` }
             ];
 
-            // PERUBAHAN: Proses hanya 2 efek pertama secara sekuensial
             for (const effect of effects.slice(0, 2)) {
                 await generateProductOnlyImage(effect, aspectRatio);
             }
@@ -723,8 +730,12 @@
                     body: JSON.stringify({ targetUrl, payload }) 
                 });
                 
-                if (!response.ok) throw new Error(`API error: ${response.statusText}`);
                 const result = await response.json();
+
+                if (!response.ok) {
+                    const errorDetails = result.details || JSON.stringify(result.error);
+                    throw new Error(`Server error: ${response.status}. Details: ${errorDetails}`);
+                }
                 
                 const candidate = result.candidates?.[0];
                 if (!candidate) {
@@ -757,11 +768,7 @@
 
             } catch (error) {
                 console.error(`Error for product-only card ${effect.id}:`, error);
-                let userMessage = 'Gagal memuat.';
-                if (error.message.includes('SAFETY')) {
-                    userMessage = 'Gagal (Filter Keamanan)';
-                }
-                card.innerHTML = `<div class="text-xs text-red-500 p-2 text-center">${userMessage}</div>`;
+                card.innerHTML = `<div class="error-message">Error: ${error.toString()}</div>`;
             } finally {
                 lucide.createIcons();
             }
@@ -834,8 +841,11 @@
                 body: JSON.stringify({ targetUrl, payload }) 
             });
 
-            if (!response.ok) throw new Error(`API error: ${response.statusText}`);
             const result = await response.json();
+            if (!response.ok) {
+                const errorDetails = result.details || JSON.stringify(result.error);
+                throw new Error(`Server error: ${response.status}. Details: ${errorDetails}`);
+            }
 
             const candidate = result.candidates?.[0];
             if (!candidate) {
@@ -920,17 +930,11 @@
                     body: JSON.stringify({ targetUrl, payload }) 
                 });
 
-                if (!response.ok) { 
-                    let errorMsg = `API Error: ${response.status}`;
-                    try {
-                        const errorBody = await response.json();
-                        errorMsg += ` - ${errorBody.error?.message || 'Unknown Error'}`;
-                    } catch (e) {
-                        errorMsg += ` - ${response.statusText}`;
-                    }
-                    throw new Error(errorMsg);
-                }
                 const result = await response.json();
+                if (!response.ok) {
+                     const errorDetails = result.details || JSON.stringify(result.error);
+                    throw new Error(`Server error: ${response.status}. Details: ${errorDetails}`);
+                }
 
                 const candidate = result.candidates?.[0];
                 if (!candidate) {
@@ -955,13 +959,7 @@
 
             } catch (error) {
                 console.error(`Error for vto card ${id}:`, error);
-                let userMessage = 'Gagal.';
-                if (error.message.includes('SAFETY')) {
-                    userMessage = 'Gagal (Filter Keamanan)';
-                } else if (error.message.includes('Tidak ada data gambar')) {
-                    userMessage = 'Gagal (AI tidak merespon)';
-                }
-                card.innerHTML = `<div class="text-xs text-red-500 p-2 text-center">${userMessage}</div>`;
+                card.innerHTML = `<div class="error-message">Error: ${error.toString()}</div>`;
             } finally {
                 lucide.createIcons();
             }
@@ -983,7 +981,6 @@
             vtoResultsContainer.classList.remove('hidden');
             vtoResultsContainer.classList.add('flex');
             vtoResultsGrid.innerHTML = '';
-             // PERUBAHAN: Buat 2 placeholder, bukan 4
             const cardIds = [1, 2];
             for(const id of cardIds) {
                 const card = document.createElement('div');
@@ -995,7 +992,6 @@
             lucide.createIcons();
             
             try {
-                // PERUBAHAN: Proses hanya 2 ID secara sekuensial
                 for (const id of cardIds) {
                     await generateSingleVTOImage(id, vtoProductData, vtoModelData, aspectRatio);
                 }
@@ -1062,8 +1058,13 @@ Pastikan setiap poin diisi dengan deskripsi yang kreatif dan profesional. Jangan
                     headers: { 'Content-Type': 'application/json' }, 
                     body: JSON.stringify({ targetUrl, payload }) 
                 });
-                if (!response.ok) { throw new Error(`HTTP error! status: ${response.status}`); }
+                
                 const result = await response.json();
+                if (!response.ok) {
+                    const errorDetails = result.details || JSON.stringify(result.error);
+                    throw new Error(`Server error: ${response.status}. Details: ${errorDetails}`);
+                }
+
                 const style = result.candidates[0].content.parts[0].text;
                 bnrStyleInput.value = style.trim().replace(/[*#]/g, '');
             } catch(error) {
@@ -1093,8 +1094,12 @@ Pastikan setiap poin diisi dengan deskripsi yang kreatif dan profesional. Jangan
                     body: JSON.stringify({ targetUrl, payload }) 
                 });
                 
-                if (!response.ok) { throw new Error(`HTTP error! status: ${response.status}`); }
                 const result = await response.json();
+                if (!response.ok) {
+                    const errorDetails = result.details || JSON.stringify(result.error);
+                    throw new Error(`Server error: ${response.status}. Details: ${errorDetails}`);
+                }
+
                 const description = result.candidates[0].content.parts[0].text;
                 bnrDescInput.value = description.trim().replace(/["*]/g, '');
                 await bnrAutoGenerateStyle();
@@ -1143,7 +1148,6 @@ Pastikan setiap poin diisi dengan deskripsi yang kreatif dan profesional. Jangan
             bnrResultsContainer.classList.remove('hidden');
             bnrResultsGrid.className = 'grid grid-cols-1 md:grid-cols-2 gap-6';
             bnrResultsGrid.innerHTML = '';
-            // PERUBAHAN: Buat 2 placeholder, bukan 4
             for(let i=1; i<=2; i++) {
                 const card = document.createElement('div');
                 card.id = `bnr-card-${i}`;
@@ -1155,7 +1159,6 @@ Pastikan setiap poin diisi dengan deskripsi yang kreatif dan profesional. Jangan
             
             try {
                 const bannerVariations = await getBannerVariations();
-                // PERUBAHAN: Proses hanya 2 ide pertama secara sekuensial
                 let index = 1;
                 for (const idea of bannerVariations.slice(0, 2)) {
                     await generateSingleBannerImage(index, idea.title, idea.prompt, aspectRatio);
@@ -1172,7 +1175,6 @@ Pastikan setiap poin diisi dengan deskripsi yang kreatif dan profesional. Jangan
         
         async function getBannerVariations() {
             const targetUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent`;
-            // PERUBAHAN: Minta 2 ide, bukan 4
             const systemPrompt = `You are an expert AI graphic designer for social media banners. Analyze the provided image, banner text, and requested style. Generate 2 distinct banner design ideas. For each, provide a JSON object with a 'title' (short name in Indonesian) and a 'prompt' (detailed English prompt for an image generation AI). The prompt MUST instruct the AI to creatively place the provided banner text onto the original image, adhering to the specified style. Describe text placement, font style, color scheme, and any subtle background enhancements or graphic elements. The original image content must not be altered, only enhanced. Respond ONLY with a valid JSON array of 2 objects.`;
             let userQuery = `Banner Text: "${bnrDescInput.value.trim()}"\nDesign Style: "${bnrStyleInput.value.trim()}"`;
             
@@ -1185,8 +1187,11 @@ Pastikan setiap poin diisi dengan deskripsi yang kreatif dan profesional. Jangan
                 body: JSON.stringify({ targetUrl, payload }) 
             });
 
-            if (!response.ok) { const errorData = await response.json(); throw new Error(errorData.error?.message || `HTTP error! status: ${response.status}`); }
             const result = await response.json();
+            if (!response.ok) { 
+                const errorDetails = result.details || JSON.stringify(result.error);
+                throw new Error(errorDetails); 
+            }
             const jsonText = result.candidates[0].content.parts[0].text;
             return JSON.parse(jsonText);
         }
@@ -1207,8 +1212,11 @@ Pastikan setiap poin diisi dengan deskripsi yang kreatif dan profesional. Jangan
                     body: JSON.stringify({ targetUrl, payload }) 
                 });
 
-                if (!response.ok) throw new Error(`API error: ${response.statusText}`);
                 const result = await response.json();
+                if (!response.ok) {
+                    const errorDetails = result.details || JSON.stringify(result.error);
+                    throw new Error(`Server error: ${response.status}. Details: ${errorDetails}`);
+                }
 
                 const candidate = result.candidates?.[0];
                 if (!candidate) {
@@ -1235,11 +1243,7 @@ Pastikan setiap poin diisi dengan deskripsi yang kreatif dan profesional. Jangan
                 } else { throw new Error("Tidak ada data gambar yang diterima dari AI."); }
             } catch (error) {
                 console.error(`Error for banner card ${id}:`, error);
-                let userMessage = 'Gagal memuat visual.';
-                if (error.message.includes('SAFETY')) {
-                    userMessage = 'Gagal (Filter Keamanan)';
-                }
-                card.innerHTML = `<div class="text-xs text-red-500 p-2 text-center">${userMessage}</div>`;
+                card.innerHTML = `<div class="error-message">Error: ${error.toString()}</div>`;
             }
         }
         
