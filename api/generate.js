@@ -1,51 +1,83 @@
 // File: api/generate.js
-// PERBAIKAN: Menambahkan durasi maksimum untuk fungsi serverless
-export const maxDuration = 60;
+export const maxDuration = 60; // Memberi waktu 60 detik untuk eksekusi
+
+// Fungsi untuk menangani request ke model Gemini
+async function handleGemini(fullApiUrl, payload, res) {
+  const response = await fetch(fullApiUrl, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  });
+
+  if (!response.ok) {
+    const errorBody = await response.text();
+    console.error('Google API Error (Gemini):', errorBody);
+    return res.status(response.status).json({ error: `Google API error: ${response.statusText}`, details: errorBody });
+  }
+
+  const data = await response.json();
+  res.status(200).json(data);
+}
+
+// Fungsi untuk menangani request ke model Imagen
+async function handleImagen(fullApiUrl, payload, res) {
+  // Imagen memiliki struktur payload yang berbeda
+  const imagenPayload = {
+    instances: [{
+      // Imagen hanya menerima prompt teks
+      prompt: payload.contents[0].parts.find(p => p.text).text
+    }],
+    parameters: {
+      sampleCount: 1
+    }
+  };
+
+  const response = await fetch(fullApiUrl, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(imagenPayload)
+  });
+
+  if (!response.ok) {
+    const errorBody = await response.text();
+    console.error('Google API Error (Imagen):', errorBody);
+    return res.status(response.status).json({ error: `Google API error: ${response.statusText}`, details: errorBody });
+  }
+
+  const data = await response.json();
+  res.status(200).json(data);
+}
 
 export default async function handler(req, res) {
-  // Hanya izinkan metode POST
   if (req.method !== 'POST') {
     return res.status(405).json({ message: 'Method Not Allowed' });
   }
 
-  // Dapatkan URL API Google asli dari request body yang dikirim frontend
   const { targetUrl, payload } = req.body;
 
   if (!targetUrl || !payload) {
     return res.status(400).json({ error: 'targetUrl and payload are required.' });
   }
 
-  // Ambil API Key dari Environment Variable yang akan kita set di Vercel
   const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
   if (!GEMINI_API_KEY) {
     return res.status(500).json({ error: 'API key not configured on the server.' });
   }
 
-  // Gabungkan URL asli dengan API Key yang aman
   const fullApiUrl = `${targetUrl}?key=${GEMINI_API_KEY}`;
 
   try {
-    // Teruskan request ke API Google
-    const response = await fetch(fullApiUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
-
-    // Jika respons dari Google tidak OK, teruskan errornya
-    if (!response.ok) {
-      const errorBody = await response.text();
-      console.error('Google API Error:', errorBody);
-      return res.status(response.status).json({ error: `Google API error: ${response.statusText}`, details: errorBody });
+    // Memilih handler berdasarkan URL target
+    if (targetUrl.includes('imagen-3.0-generate-002')) {
+      await handleImagen(fullApiUrl, payload, res);
+    } else {
+      // Default ke Gemini untuk fitur lain yang mungkin masih menggunakannya
+      await handleGemini(fullApiUrl, payload, res);
     }
-
-    // Teruskan respons sukses dari Google kembali ke frontend
-    const data = await response.json();
-    res.status(200).json(data);
-
   } catch (error) {
     console.error('Proxy Error:', error);
     res.status(500).json({ error: 'An internal server error occurred.' });
   }
 }
+
