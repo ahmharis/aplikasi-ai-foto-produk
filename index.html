@@ -322,3 +322,933 @@
                                         <label for="vto-model-input" id="vto-model-upload-box" class="upload-box w-full h-48 sm:h-80 flex-grow rounded-lg flex items-center justify-center cursor-pointer relative overflow-hidden">
                                             <div id="vto-model-placeholder" class="text-center text-gray-500 p-2">
                                                 <i data-lucide="user" class="mx-auto h-10 w-10"></i>
+                                                <p class="mt-2 text-sm">Seret & lepas atau klik</p>
+                                            </div>
+                                            <img id="vto-model-preview" class="hidden absolute top-0 left-0 w-full h-full object-contain" alt="Pratinjau Model">
+                                             <button id="vto-remove-model-btn" class="hidden absolute top-1 right-1 bg-red-600 text-white rounded-full p-1 hover:bg-red-700 z-10"><i data-lucide="x" class="w-3 h-3"></i></button>
+                                        </label>
+                                        <input type="file" id="vto-model-input" class="hidden" accept="image/*">
+                                    </div>
+                                </div>
+                                <div class="flex flex-col gap-6">
+                                    <div>
+                                        <h3 class="text-lg font-semibold mb-3 text-gray-800">3. Pilih Rasio</h3>
+                                        <div id="vto-ratio-options" class="grid grid-cols-3 gap-3">
+                                            <button data-value="1:1" class="option-btn selected flex items-center justify-center gap-2"><i data-lucide="square" class="w-4 h-4"></i><span>1:1</span></button>
+                                            <button data-value="16:9" class="option-btn flex items-center justify-center gap-2"><i data-lucide="rectangle-horizontal" class="w-4 h-4"></i><span>16:9</span></button>
+                                            <button data-value="9:16" class="option-btn flex items-center justify-center gap-2"><i data-lucide="rectangle-vertical" class="w-4 h-4"></i><span>9:16</span></button>
+                                        </div>
+                                    </div>
+                                     <div>
+                                        <button id="vto-generate-btn" class="w-full text-white font-bold py-3 px-8 rounded-lg text-lg bg-gradient-to-r from-teal-500 to-cyan-500 shadow-md hover:shadow-lg hover:-translate-y-px transition-all duration-300 disabled:bg-slate-200 disabled:shadow-none disabled:translate-y-0">
+                                            Buat 4 Variasi Foto Produk
+                                        </button>
+                                        <p id="vto-status-message" class="text-red-500 mt-2 h-6 text-center"></p>
+                                    </div>
+                                    <div id="vto-results-container" class="card p-4 flex-col flex-grow hidden">
+                                        <h2 class="text-lg md:text-xl font-semibold mb-3 text-center text-gray-800">Hasil Generate AI</h2>
+                                        <div id="vto-results-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        </div>
+                                    </div>
+                                </div>
+                            </main>
+                        </div>
+                     </div>
+                </div>
+
+                <div id="content-combine-text" class="hidden">
+                    <main class="flex flex-col lg:flex-row gap-6 md:gap-8">
+                        <div class="bg-white rounded-xl border border-gray-200 p-4 md:p-6 w-full lg:w-1/3 lg:max-w-md flex-shrink-0 self-start">
+                            <div class="flex flex-col gap-4 md:gap-6">
+                               <div class="step-container">
+                                    <h2 class="text-base md:text-lg font-semibold mb-2 md:mb-3 text-gray-800">1. Unggah Gambar Banner</h2>
+                                    <div id="bnr-image-upload-area">
+                                        <label for="bnr-image-input" class="file-input-label rounded-lg text-center !p-4">
+                                            <i data-lucide="image-plus" class="w-8 h-8 md:w-10 md:h-10 mb-2 text-gray-400"></i>
+                                            <span class="font-semibold text-sm md:text-base">Pilih Gambar Utama</span>
+                                        </label>
+                                        <input type="file" id="bnr-image-input" class="hidden" accept="image/png, image/jpeg, image/webp">
+                                    </div>
+                                    <div id="bnr-image-preview-container" class="hidden mt-4 relative">
+                                        <img id="bnr-image-preview" src="#" alt="Pratinjau Banner" class="rounded-lg w-full h-auto object-contain">
+                                        <button id="bnr-remove-image-btn" class="absolute top-2 right-2 bg-red-600 text-white rounded-full p-1.5 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+                                    </div>
+                                </div>
+                                <div class="step-container">
+                                    <div class="flex justify-between items-center mb-2 md:mb-3">
+                                        <h2 class="text-base md:text-lg font-semibold text-gray-800">2. Teks Banner</h2>
+                                        <div id="bnr-desc-loader" class="hidden">
+                                             <div class="loader-icon w-4 h-4"></div>
+                                        </div>
+                                    </div>
+                                    <textarea id="bnr-desc-input" rows="3" class="w-full p-2 md:p-3 text-sm md:text-base rounded-lg focus:ring-2 transition" placeholder="Teks banner akan dibuat AI di sini..."></textarea>
+                                </div>
+                                 <div class="step-container">
+                                    <div class="flex justify-between items-center mb-2 md:mb-3">
+                                        <h2 class="text-base md:text-lg font-semibold text-gray-800">3. Style Banner</h2>
+                                         <div id="bnr-style-loader" class="hidden">
+                                             <div class="loader-icon w-4 h-4"></div>
+                                        </div>
+                                    </div>
+                                    <textarea id="bnr-style-input" rows="10" class="w-full p-2 md:p-3 text-sm md:text-base rounded-lg focus:ring-2 transition" placeholder="Style banner akan dibuat AI di sini..."></textarea>
+                                </div>
+                                <div class="step-container">
+                                    <h2 class="text-base md:text-lg font-semibold mb-2 md:mb-3 text-gray-800">4. Pilih Rasio</h2>
+                                    <div id="bnr-ratio-options" class="grid grid-cols-3 gap-3">
+                                        <button data-value="1:1" class="option-btn selected flex items-center justify-center gap-2"><i data-lucide="square" class="w-4 h-4"></i><span>1:1</span></button>
+                                        <button data-value="16:9" class="option-btn flex items-center justify-center gap-2"><i data-lucide="rectangle-horizontal" class="w-4 h-4"></i><span>16:9</span></button>
+                                        <button data-value="9:16" class="option-btn flex items-center justify-center gap-2"><i data-lucide="rectangle-vertical" class="w-4 h-4"></i><span>9:16</span></button>
+                                    </div>
+                                </div>
+                                <button id="bnr-generate-btn" class="w-full text-white font-bold py-2.5 px-4 rounded-lg flex items-center justify-center text-base md:text-lg bg-gradient-to-r from-teal-500 to-cyan-500 shadow-md hover:shadow-lg hover:-translate-y-px transition-all duration-300 disabled:bg-slate-200 disabled:shadow-none disabled:translate-y-0" disabled>
+                                    <span>Buat 4 Variasi Poster</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div id="bnr-results-container" class="flex-grow hidden">
+                             <h3 class="text-xl md:text-2xl font-bold text-center mb-6 text-gray-800">Hasil Poster Produk</h3>
+                            <div id="bnr-results-grid" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
+                        </div>
+                    </main>
+                </div>
+             </div>
+             <footer class="text-center py-6 mt-4 text-sm text-gray-500 border-t border-gray-200">
+                <p id="footer-text"></p>
+            </footer>
+        </main>
+    </div>
+
+    <div id="universal-modal" class="modal-backdrop">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-4">
+                <h3 id="modal-title" class="text-xl font-bold"></h3>
+                <button id="close-modal-btn" class="text-slate-400 hover:text-white text-3xl">&times;</button>
+            </div>
+            <div id="modal-body"></div>
+        </div>
+    </div>
+
+    <div class="md:hidden">
+        <div class="mobile-nav-bar">
+            <button id="mobile-nav-virtual-try-on" class="mobile-nav-item active">
+                <i data-lucide="shopping-bag" class="w-5 h-5"></i>
+                <span>Produk</span>
+            </button>
+             <button id="mobile-nav-combine-text" class="mobile-nav-item">
+                <i data-lucide="type" class="w-5 h-5"></i>
+                <span>Poster</span>
+            </button>
+        </div>
+        <button id="mobile-nav-scroll-left" class="fixed bottom-0 left-0 z-40 flex h-[65px] w-12 items-center justify-start bg-gradient-to-r from-slate-900 to-transparent pl-2 text-white opacity-0 pointer-events-none transition-opacity">
+            <i data-lucide="chevron-left" class="w-6 h-6"></i>
+        </button>
+        <button id="mobile-nav-scroll-right" class="fixed bottom-0 right-0 z-40 flex h-[65px] w-12 items-center justify-end bg-gradient-to-l from-slate-900 to-transparent pr-2 text-white opacity-0 pointer-events-none transition-opacity">
+            <i data-lucide="chevron-right" class="w-6 h-6"></i>
+        </button>
+    </div>
+
+    <script>
+    window.addEventListener('load', () => {
+        const tabVirtualTryOn = document.getElementById('tab-virtual-try-on');
+        const tabCombineText = document.getElementById('tab-combine-text');
+        const contentVirtualTryOn = document.getElementById('content-virtual-try-on');
+        const contentCombineText = document.getElementById('content-combine-text');
+        const mobileNavVirtualTryOn = document.getElementById('mobile-nav-virtual-try-on');
+        const mobileNavCombineText = document.getElementById('mobile-nav-combine-text');
+        const mobileNavBar = document.querySelector('.mobile-nav-bar');
+        const mobileNavScrollLeft = document.getElementById('mobile-nav-scroll-left');
+        const mobileNavScrollRight = document.getElementById('mobile-nav-scroll-right');
+
+        function updateScrollIndicators() {
+            if (mobileNavBar) {
+                const isScrollable = mobileNavBar.scrollWidth > mobileNavBar.clientWidth;
+                if (isScrollable) {
+                    const canScrollLeft = mobileNavBar.scrollLeft > 1;
+                    const canScrollRight = mobileNavBar.scrollLeft < (mobileNavBar.scrollWidth - mobileNavBar.clientWidth - 1);
+                    mobileNavScrollLeft.classList.toggle('opacity-100', canScrollLeft);
+                    mobileNavScrollLeft.classList.toggle('pointer-events-auto', canScrollLeft);
+                    mobileNavScrollLeft.classList.toggle('opacity-0', !canScrollLeft);
+                    mobileNavScrollLeft.classList.toggle('pointer-events-none', !canScrollLeft);
+                    mobileNavScrollRight.classList.toggle('opacity-100', canScrollRight);
+                    mobileNavScrollRight.classList.toggle('pointer-events-auto', canScrollRight);
+                    mobileNavScrollRight.classList.toggle('opacity-0', !canScrollRight);
+                    mobileNavScrollRight.classList.toggle('pointer-events-none', !canScrollRight);
+                } else {
+                    mobileNavScrollLeft.classList.add('opacity-0', 'pointer-events-none');
+                    mobileNavScrollLeft.classList.remove('opacity-100', 'pointer-events-auto');
+                    mobileNavScrollRight.classList.add('opacity-0', 'pointer-events-none');
+                    mobileNavScrollRight.classList.remove('opacity-100', 'pointer-events-auto');
+                }
+            }
+        }
+        
+        const universalModal = document.getElementById('universal-modal');
+        const modalTitle = document.getElementById('modal-title');
+        const modalBody = document.getElementById('modal-body');
+        const closeModalBtn = document.getElementById('close-modal-btn');
+
+        function hideModal() {
+            universalModal.classList.remove('visible');
+        }
+
+        closeModalBtn.addEventListener('click', hideModal);
+        universalModal.addEventListener('click', (e) => {
+            if (e.target === universalModal) {
+                hideModal();
+            }
+        });
+
+        function switchTab(tabName) {
+            const tabs = {
+                'vto': { btn: tabVirtualTryOn, mobileBtn: mobileNavVirtualTryOn, content: contentVirtualTryOn },
+                'combine-text': { btn: tabCombineText, mobileBtn: mobileNavCombineText, content: contentCombineText },
+            };
+            for (const key in tabs) {
+                const isActive = key === tabName;
+                if (tabs[key].content) tabs[key].content.classList.toggle('hidden', !isActive);
+                if (tabs[key].mobileBtn) tabs[key].mobileBtn.classList.toggle('active', isActive);
+                if (tabs[key].btn) tabs[key].btn.classList.toggle('active', isActive);
+            }
+        }
+
+        tabVirtualTryOn.addEventListener('click', () => switchTab('vto'));
+        tabCombineText.addEventListener('click', () => switchTab('combine-text'));
+        mobileNavVirtualTryOn.addEventListener('click', () => switchTab('vto'));
+        mobileNavCombineText.addEventListener('click', () => switchTab('combine-text'));
+        updateScrollIndicators();
+
+        function setupImageUpload(input, uploadArea, onFile) {
+            function handleFile(file) {
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        const parts = e.target.result.split(',');
+                        const mimeType = parts[0].match(/:(.*?);/)[1];
+                        const base64 = parts[1];
+                        onFile({ base64, mimeType, dataUrl: e.target.result });
+                    };
+                    reader.readAsDataURL(file);
+                }
+            }
+            input.addEventListener('change', (event) => handleFile(event.target.files[0]));
+            if (uploadArea) {
+                ['dragover', 'drop', 'dragleave'].forEach(eventName => {
+                    uploadArea.addEventListener(eventName, e => { e.preventDefault(); e.stopPropagation(); });
+                });
+                uploadArea.addEventListener('dragover', () => uploadArea.classList.add('border-teal-500'));
+                uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('border-teal-500'));
+                uploadArea.addEventListener('drop', (e) => {
+                    uploadArea.classList.remove('border-teal-500');
+                    handleFile(e.dataTransfer.files[0]);
+                });
+            }
+        }
+        
+        const vtoTabProductOnly = document.getElementById('vto-tab-product-only');
+        const vtoTabProductModel = document.getElementById('vto-tab-product-model');
+        const vtoContentProductOnly = document.getElementById('vto-content-product-only');
+        const vtoContentProductModel = document.getElementById('vto-content-product-model');
+
+        function switchVtoTab(tabName) {
+            if(tabName === 'product-only') {
+                vtoTabProductOnly.classList.add('border-teal-500', 'text-teal-600');
+                vtoTabProductOnly.classList.remove('border-transparent', 'text-gray-500', 'hover:text-gray-700', 'hover:border-gray-300');
+                vtoTabProductModel.classList.add('border-transparent', 'text-gray-500', 'hover:text-gray-700', 'hover:border-gray-300');
+                vtoTabProductModel.classList.remove('border-teal-500', 'text-teal-600');
+                vtoContentProductOnly.classList.remove('hidden');
+                vtoContentProductModel.classList.add('hidden');
+            } else {
+                vtoTabProductModel.classList.add('border-teal-500', 'text-teal-600');
+                vtoTabProductModel.classList.remove('border-transparent', 'text-gray-500', 'hover:text-gray-700', 'hover:border-gray-300');
+                vtoTabProductOnly.classList.add('border-transparent', 'text-gray-500', 'hover:text-gray-700', 'hover:border-gray-300');
+                vtoTabProductOnly.classList.remove('border-teal-500', 'text-teal-600');
+                vtoContentProductModel.classList.remove('hidden');
+                vtoContentProductOnly.classList.add('hidden');
+            }
+        }
+        vtoTabProductOnly.addEventListener('click', () => switchVtoTab('product-only'));
+        vtoTabProductModel.addEventListener('click', () => switchVtoTab('product-model'));
+
+        const psImageInput = document.getElementById('ps-image-input');
+        const psUploadBox = document.getElementById('ps-upload-box');
+        const psPreview = document.getElementById('ps-preview');
+        const psPlaceholder = document.getElementById('ps-placeholder');
+        const psRemoveBtn = document.getElementById('ps-remove-btn');
+        const psLightingOptions = document.getElementById('ps-lighting-options');
+        const psMoodOptions = document.getElementById('ps-mood-options');
+        const psRatioOptions = document.getElementById('ps-ratio-options');
+        const psLocationContainer = document.getElementById('ps-location-container');
+        const psLocationOptions = document.getElementById('ps-location-options');
+        const psGenerateBtn = document.getElementById('ps-generate-btn');
+        const psResultsContainer = document.getElementById('ps-results-container');
+        const psResultsGrid = document.getElementById('ps-results-grid');
+
+        let psImageData = null;
+
+        function setupOptionButtons(container) {
+            container.addEventListener('click', (e) => {
+                const clickedButton = e.target.closest('button');
+                if (clickedButton && container.contains(clickedButton)) {
+                    Array.from(container.children).forEach(btn => btn.classList.remove('selected'));
+                    clickedButton.classList.add('selected');
+                }
+            });
+        }
+        setupOptionButtons(psLightingOptions);
+        setupOptionButtons(psMoodOptions);
+        setupOptionButtons(psRatioOptions);
+        setupOptionButtons(psLocationOptions);
+
+        psMoodOptions.addEventListener('click', (e) => {
+            const button = e.target.closest('button');
+            if (button && button.dataset.value === 'crowd') {
+                psLocationContainer.classList.remove('hidden');
+            } else {
+                psLocationContainer.classList.add('hidden');
+            }
+        });
+
+        function psUpdateButtons() {
+            psGenerateBtn.disabled = !psImageData;
+        }
+
+        setupImageUpload(psImageInput, psUploadBox, (data) => {
+            psImageData = data;
+            psPreview.src = data.dataUrl;
+            psPlaceholder.classList.add('hidden');
+            psPreview.classList.remove('hidden');
+            psRemoveBtn.classList.remove('hidden');
+            psUpdateButtons();
+        });
+
+        psRemoveBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            psImageData = null;
+            psImageInput.value = '';
+            psPreview.src = '#';
+            psPreview.classList.add('hidden');
+            psPlaceholder.classList.remove('hidden');
+            psRemoveBtn.classList.add('hidden');
+            psUpdateButtons();
+        });
+        
+        psResultsGrid.addEventListener('click', (e) => {
+            const viewBtn = e.target.closest('.ps-view-btn');
+            if (viewBtn) {
+                const imgSrc = viewBtn.dataset.imgSrc;
+                const imgTitle = viewBtn.dataset.imgTitle;
+                modalTitle.textContent = `Pratinjau: ${imgTitle}`;
+                modalBody.innerHTML = `<img src="${imgSrc}" class="w-full h-auto rounded-lg"><a href="${imgSrc}" download="${imgTitle.replace(/\s/g, '_')}.png" class="mt-4 inline-block w-full text-center bg-teal-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-teal-700">Unduh Gambar</a>`;
+                universalModal.classList.add('visible');
+            }
+            
+            const editBtn = e.target.closest('.ps-edit-btn');
+            if (editBtn) {
+                const imgSrc = editBtn.dataset.imgSrc;
+                const imgTitle = editBtn.dataset.imgTitle;
+                const cardId = editBtn.dataset.cardId;
+                showEditModal(imgSrc, imgTitle, cardId);
+            }
+        });
+
+        psGenerateBtn.addEventListener('click', async () => {
+            const originalBtnHTML = psGenerateBtn.innerHTML;
+            psGenerateBtn.disabled = true;
+            psGenerateBtn.innerHTML = `<div class="loader-icon !border-l-white w-5 h-5"></div><span class="ml-2">Membuat Variasi...</span>`;
+            
+            const aspectRatio = psRatioOptions.querySelector('.selected').dataset.value;
+            const aspectClass = getAspectRatioClass(aspectRatio);
+
+            psResultsContainer.classList.remove('hidden');
+            psResultsGrid.innerHTML = '';
+             for (let i = 1; i <= 4; i++) {
+                const card = document.createElement('div');
+                card.id = `ps-card-${i}`;
+                card.className = `card overflow-hidden bg-gray-100 flex items-center justify-center ${aspectClass}`;
+                card.innerHTML = `<div class="loader-icon w-8 h-8"></div>`;
+                psResultsGrid.appendChild(card);
+            }
+            lucide.createIcons();
+            
+            const lighting = psLightingOptions.querySelector('.selected').dataset.value;
+            const mood = psMoodOptions.querySelector('.selected').dataset.value;
+            const location = psLocationOptions.querySelector('.selected').dataset.value;
+            
+            let baseSetting = `The lighting is ${lighting}. `;
+            let moodAndLocationSetting = `The mood is ${mood}. `;
+
+            if (mood === 'crowd') {
+                let locationDescription = '';
+                if (location === 'indoor') {
+                    locationDescription = 'on a professional shooting table inside a stylish room, focusing sharply on the product';
+                } else {
+                    locationDescription = 'at a professional outdoor photoshoot location, like a manicured garden or a scenic architectural spot';
+                }
+                moodAndLocationSetting += `The product is placed naturally within the scene: ${locationDescription}. `;
+            }
+            
+            const userInstructions = baseSetting + moodAndLocationSetting;
+
+            const effects = [
+                { id: 1, name: 'Efek Shadow', prompt: `Analyze the product. Create a background that is thematically related to the product, with no people visible. Within this scene, the product itself must cast a prominent, artistic shadow across the surface. The final image must adhere to these user instructions: "${userInstructions}"` },
+                { id: 2, name: 'Efek Bokeh', prompt: `Analyze the product. Create a background that is thematically related to the product, with no people visible. This background must be rendered with a beautiful, soft bokeh effect, while the product remains in sharp focus. The final image must adhere to these user instructions: "${userInstructions}"` },
+                { id: 3, name: 'Efek Terbang', prompt: `Dynamic 'hero product' action photography. The product is captured mid-air in a freeze-motion style. Create a dynamic, abstract background that is thematically related to the product itself. Artistic splashes and particles that match the product should scatter around it. The final image must adhere to these user instructions: "${userInstructions}" The overall mood should be powerful and cinematic.` },
+                { id: 4, name: 'Studio Photo', prompt: `Professional studio product photography. The product is placed on a clean, reflective surface against a seamless, neutral-colored studio background. Analyze the main product and place a few thematically relevant, smaller objects or props around it to create an appealing composition. The lighting should be soft, multi-point studio lighting that eliminates harsh shadows and highlights the product's details and texture. The final image must be ultra-realistic, sharp, and high-resolution, while adhering to these user instructions: "${userInstructions}"` }
+            ];
+
+            const generationPromises = effects.map(effect => generateProductOnlyImage(effect, aspectRatio));
+            await Promise.allSettled(generationPromises);
+
+            psGenerateBtn.disabled = false;
+            psGenerateBtn.innerHTML = originalBtnHTML;
+            lucide.createIcons();
+        });
+
+        async function generateProductOnlyImage(effect, aspectRatio) {
+            const card = document.getElementById(`ps-card-${effect.id}`);
+            try {
+                const targetUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image-preview:generateContent`;
+                const finalPrompt = `${effect.prompt} The final image must have an aspect ratio of ${aspectRatio}.`
+                const payload = {
+                    contents: [{ parts: [{ text: finalPrompt }, { inlineData: { mimeType: psImageData.mimeType, data: psImageData.base64 } }] }],
+                    generationConfig: { responseModalities: ['IMAGE'] },
+                };
+
+                const response = await fetch('/api/generate', { 
+                    method: 'POST', 
+                    headers: { 'Content-Type': 'application/json' }, 
+                    body: JSON.stringify({ targetUrl, payload }) 
+                });
+                
+                if (!response.ok) throw new Error(`API error: ${response.statusText}`);
+                const result = await response.json();
+                
+                const candidate = result.candidates?.[0];
+                if (!candidate) {
+                    throw new Error("Respon AI tidak valid: tidak ada kandidat.");
+                }
+                if (candidate.finishReason && candidate.finishReason !== 'STOP') {
+                     throw new Error(`Generasi dihentikan: ${candidate.finishReason}`);
+                }
+                const base64Data = candidate.content?.parts?.find(p => p.inlineData)?.inlineData?.data;
+
+                if (base64Data) {
+                    const imageUrl = `data:image/png;base64,${base64Data}`;
+                    const safeName = effect.name.replace(/\s/g, '_');
+                    card.innerHTML = `
+                        <img src="${imageUrl}" class="w-full h-full object-cover">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent pointer-events-none"></div>
+                        <h4 class="absolute bottom-2 left-3 text-white font-semibold text-sm pointer-events-none">${effect.name}</h4>
+                        <div class="absolute bottom-2 right-2 flex gap-1">
+                             <button data-img-src="${imageUrl}" data-img-title="${effect.name}" data-card-id="${card.id}" class="ps-edit-btn bg-white/80 text-slate-700 p-2 rounded-full hover:bg-white inline-block" title="Edit Gambar"><i data-lucide="pencil" class="w-4 h-4"></i></button>
+                             <button data-img-src="${imageUrl}" data-img-title="${effect.name}" class="ps-view-btn bg-white/80 text-slate-700 p-2 rounded-full hover:bg-white inline-block" title="Lihat Gambar"><i data-lucide="eye" class="w-4 h-4"></i></button>
+                            <a href="${imageUrl}" download="produk_${safeName}.png" class="ps-download-link bg-teal-600 text-white p-2 rounded-full hover:bg-teal-700 inline-block" title="Unduh Gambar">
+                                <i data-lucide="download" class="w-4 h-4"></i>
+                            </a>
+                        </div>`;
+                    card.classList.remove('bg-gray-100', 'flex', 'items-center', 'justify-center');
+                    card.classList.add('relative');
+                } else {
+                    throw new Error("Tidak ada data gambar yang diterima dari AI.");
+                }
+
+            } catch (error) {
+                console.error(`Error for product-only card ${effect.id}:`, error);
+                let userMessage = 'Gagal memuat.';
+                if (error.message.includes('SAFETY')) {
+                    userMessage = 'Gagal (Filter Keamanan)';
+                }
+                card.innerHTML = `<div class="text-xs text-red-500 p-2 text-center">${userMessage}</div>`;
+            } finally {
+                lucide.createIcons();
+            }
+        }
+
+        function showEditModal(imgSrc, imgTitle, cardId) {
+            modalTitle.textContent = `Edit: ${imgTitle}`;
+            modalBody.innerHTML = `
+                <img src="${imgSrc}" class="w-full h-auto rounded-lg mb-4">
+                <label for="edit-instruction" class="block mb-2 font-semibold">Instruksi Edit:</label>
+                <textarea id="edit-instruction" class="w-full p-2 rounded-lg bg-slate-700 text-white border border-slate-600" rows="3" placeholder="Contoh: ganti warna background menjadi biru..."></textarea>
+                <button id="submit-edit-btn" class="mt-4 w-full bg-teal-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-teal-700">
+                    Edit Gambar
+                </button>
+            `;
+            universalModal.classList.add('visible');
+
+            const submitEditBtn = document.getElementById('submit-edit-btn');
+            submitEditBtn.addEventListener('click', async () => {
+                const instruction = document.getElementById('edit-instruction').value.trim();
+                if (!instruction) {
+                    document.getElementById('edit-instruction').focus();
+                    return;
+                }
+
+                submitEditBtn.disabled = true;
+                submitEditBtn.innerHTML = '<div class="loader-icon loader-icon-light mx-auto"></div>';
+
+                const parts = imgSrc.split(',');
+                const mimeType = parts[0].match(/:(.*?);/)[1];
+                const base64 = parts[1];
+                
+                const originalImageData = { base64, mimeType };
+
+                try {
+                    const newBase64 = await generateEditedImage(originalImageData, instruction);
+                    const newImageUrl = `data:image/png;base64,${newBase64}`;
+                    
+                    const cardToUpdate = document.getElementById(cardId);
+                    if (cardToUpdate) {
+                        const imgElement = cardToUpdate.querySelector('img');
+                        const editBtnElement = cardToUpdate.querySelector('.ps-edit-btn');
+                        const viewBtnElement = cardToUpdate.querySelector('.ps-view-btn');
+                        const downloadLinkElement = cardToUpdate.querySelector('.ps-download-link');
+                        
+                        if(imgElement) imgElement.src = newImageUrl;
+                        if(editBtnElement) editBtnElement.dataset.imgSrc = newImageUrl;
+                        if(viewBtnElement) viewBtnElement.dataset.imgSrc = newImageUrl;
+                        if(downloadLinkElement) downloadLinkElement.href = newImageUrl;
+                    }
+                    hideModal();
+                } catch (error) {
+                    console.error('Failed to edit image:', error);
+                    hideModal();
+                }
+            }, { once: true });
+        }
+        
+        async function generateEditedImage(originalImageData, instruction) {
+            const targetUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image-preview:generateContent`;
+            const prompt = `Based on the original image, edit it according to the following instruction: "${instruction}". Keep the main subject and overall style intact, only applying the requested changes.`;
+            const payload = {
+                contents: [{ parts: [ { text: prompt }, { inlineData: { mimeType: originalImageData.mimeType, data: originalImageData.base64 } } ] }],
+                generationConfig: { responseModalities: ['IMAGE'] },
+            };
+            
+            const response = await fetch('/api/generate', { 
+                method: 'POST', 
+                headers: { 'Content-Type': 'application/json' }, 
+                body: JSON.stringify({ targetUrl, payload }) 
+            });
+
+            if (!response.ok) throw new Error(`API error: ${response.statusText}`);
+            const result = await response.json();
+
+            const candidate = result.candidates?.[0];
+            if (!candidate) {
+                throw new Error("Respon AI tidak valid: tidak ada kandidat.");
+            }
+            if (candidate.finishReason && candidate.finishReason !== 'STOP') {
+                 throw new Error(`Generasi dihentikan: ${candidate.finishReason}`);
+            }
+            const base64Data = candidate.content?.parts?.find(p => p.inlineData)?.inlineData?.data;
+
+            if (base64Data) {
+                return base64Data;
+            } else {
+                throw new Error("Invalid response from API, no image data found.");
+            }
+        }
+
+        const vtoProductUploadBox = document.getElementById('vto-product-upload-box');
+        const vtoProductInput = document.getElementById('vto-product-input');
+        const vtoProductPreview = document.getElementById('vto-product-preview');
+        const vtoProductPlaceholder = document.getElementById('vto-product-placeholder');
+        const vtoRemoveProductBtn = document.getElementById('vto-remove-product-btn');
+        const vtoModelUploadBox = document.getElementById('vto-model-upload-box');
+        const vtoModelInput = document.getElementById('vto-model-input');
+        const vtoModelPreview = document.getElementById('vto-model-preview');
+        const vtoModelPlaceholder = document.getElementById('vto-model-placeholder');
+        const vtoRemoveModelBtn = document.getElementById('vto-remove-model-btn');
+        const vtoRatioOptions = document.getElementById('vto-ratio-options');
+        const vtoGenerateBtn = document.getElementById('vto-generate-btn');
+        const vtoStatusMessage = document.getElementById('vto-status-message');
+        const vtoResultsContainer = document.getElementById('vto-results-container');
+        const vtoResultsGrid = document.getElementById('vto-results-grid');
+        
+        let vtoProductData = null;
+        let vtoModelData = null;
+        
+        setupImageUpload(vtoProductInput, vtoProductUploadBox, (data) => {
+            vtoProductData = data;
+            vtoProductPreview.src = data.dataUrl;
+            vtoProductPlaceholder.classList.add('hidden');
+            vtoProductPreview.classList.remove('hidden');
+            vtoRemoveProductBtn.classList.remove('hidden');
+        });
+        vtoRemoveProductBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            vtoProductData = null;
+            vtoProductInput.value = '';
+            vtoProductPreview.src = '#';
+            vtoProductPreview.classList.add('hidden');
+            vtoProductPlaceholder.classList.remove('hidden');
+            vtoRemoveProductBtn.classList.add('hidden');
+        });
+        
+        setupImageUpload(vtoModelInput, vtoModelUploadBox, (data) => {
+            vtoModelData = data;
+            vtoModelPreview.src = data.dataUrl;
+            vtoModelPlaceholder.classList.add('hidden');
+            vtoModelPreview.classList.remove('hidden');
+            vtoRemoveModelBtn.classList.remove('hidden');
+        });
+         vtoRemoveModelBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            vtoModelData = null;
+            vtoModelInput.value = '';
+            vtoModelPreview.src = '#';
+            vtoModelPreview.classList.add('hidden');
+            vtoModelPlaceholder.classList.remove('hidden');
+            vtoRemoveModelBtn.classList.add('hidden');
+        });
+        setupOptionButtons(vtoRatioOptions);
+
+        async function generateSingleVTOImage(id, product, model, aspectRatio) {
+             const card = document.getElementById(`vto-card-${id}`);
+            try {
+                const targetUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image-preview:generateContent`;
+                const prompt = `Dengan menggunakan foto produk dan foto model yang tersedia, buatlah sebuah gambar fotorealistis baru di mana model tersebut sedang mengenakan atau menggunakan produk tersebut. Pastikan hasilnya berkualitas tinggi dan terlihat seperti sesi pemotretan profesional. Pertahankan penampilan model dan detail produk. Variasi ${id}. The final image must have an aspect ratio of ${aspectRatio}.`;
+                const payload = { contents: [{ parts: [ { text: prompt }, { inlineData: { mimeType: product.mimeType, data: product.base64 } }, { inlineData: { mimeType: model.mimeType, data: model.base64 } } ] }], generationConfig: { responseModalities: ['IMAGE'] } };
+                
+                const response = await fetch('/api/generate', { 
+                    method: 'POST', 
+                    headers: { 'Content-Type': 'application/json' }, 
+                    body: JSON.stringify({ targetUrl, payload }) 
+                });
+
+                if (!response.ok) { 
+                    let errorMsg = `API Error: ${response.status}`;
+                    try {
+                        const errorBody = await response.json();
+                        errorMsg += ` - ${errorBody.error?.message || 'Unknown Error'}`;
+                    } catch (e) {
+                        errorMsg += ` - ${response.statusText}`;
+                    }
+                    throw new Error(errorMsg);
+                }
+                const result = await response.json();
+
+                const candidate = result.candidates?.[0];
+                if (!candidate) {
+                    throw new Error("Respon AI tidak valid: tidak ada kandidat.");
+                }
+                if (candidate.finishReason && candidate.finishReason !== 'STOP') {
+                     throw new Error(`Generasi dihentikan: ${candidate.finishReason}`);
+                }
+                const base64Data = candidate.content?.parts?.find(p => p.inlineData)?.inlineData?.data;
+                if (!base64Data) throw new Error("Tidak ada data gambar yang diterima dari AI.");
+                
+                const imageUrl = `data:image/png;base64,${base64Data}`;
+                card.innerHTML = `
+                    <img src="${imageUrl}" class="w-full h-full object-cover">
+                    <div class="absolute bottom-2 right-2">
+                        <a href="${imageUrl}" download="photoshoot_${id}.png" class="bg-teal-600 text-white p-2 rounded-full hover:bg-teal-700 inline-block" title="Unduh Gambar">
+                            <i data-lucide="download" class="w-4 h-4"></i>
+                        </a>
+                    </div>`;
+                card.classList.remove('bg-gray-100', 'flex', 'items-center', 'justify-center');
+                card.classList.add('relative');
+
+            } catch (error) {
+                console.error(`Error for vto card ${id}:`, error);
+                let userMessage = 'Gagal.';
+                if (error.message.includes('SAFETY')) {
+                    userMessage = 'Gagal (Filter Keamanan)';
+                } else if (error.message.includes('Tidak ada data gambar')) {
+                    userMessage = 'Gagal (AI tidak merespon)';
+                }
+                card.innerHTML = `<div class="text-xs text-red-500 p-2 text-center">${userMessage}</div>`;
+            } finally {
+                lucide.createIcons();
+            }
+        }
+
+        vtoGenerateBtn.addEventListener('click', async () => {
+            if (!vtoProductData || !vtoModelData) {
+                vtoStatusMessage.textContent = 'Harap unggah foto produk dan model terlebih dahulu.';
+                return;
+            }
+            vtoStatusMessage.textContent = '';
+            const originalBtnHTML = vtoGenerateBtn.innerHTML;
+            vtoGenerateBtn.disabled = true;
+            vtoGenerateBtn.innerHTML = '<div class="loader-icon !border-l-white w-5 h-5 mx-auto"></div>';
+            
+            const aspectRatio = vtoRatioOptions.querySelector('.selected').dataset.value;
+            const aspectClass = getAspectRatioClass(aspectRatio);
+
+            vtoResultsContainer.classList.remove('hidden');
+            vtoResultsContainer.classList.add('flex');
+            vtoResultsGrid.innerHTML = '';
+            for(let i=1; i<=4; i++) {
+                const card = document.createElement('div');
+                card.id = `vto-card-${i}`;
+                card.className = `card overflow-hidden transition-all ${aspectClass} bg-gray-100 flex items-center justify-center`;
+                card.innerHTML = `<div class="loader-icon w-8 h-8"></div>`;
+                vtoResultsGrid.appendChild(card);
+            }
+            lucide.createIcons();
+            
+            try {
+                const generationPromises = [1,2,3,4].map(i => generateSingleVTOImage(i, vtoProductData, vtoModelData, aspectRatio));
+                await Promise.allSettled(generationPromises);
+            } catch (error) {
+                console.error('Gagal generate gambar:', error);
+                vtoStatusMessage.textContent = 'Maaf, terjadi kesalahan saat generate gambar. Coba lagi.';
+            } finally {
+                vtoGenerateBtn.disabled = false;
+                vtoGenerateBtn.innerHTML = originalBtnHTML;
+            }
+        });
+        
+        const bnrImageInput = document.getElementById('bnr-image-input');
+        const bnrImageUploadArea = document.getElementById('bnr-image-upload-area');
+        const bnrImagePreviewContainer = document.getElementById('bnr-image-preview-container');
+        const bnrImagePreview = document.getElementById('bnr-image-preview');
+        const bnrRemoveImageBtn = document.getElementById('bnr-remove-image-btn');
+        const bnrDescInput = document.getElementById('bnr-desc-input');
+        const bnrDescLoader = document.getElementById('bnr-desc-loader');
+        const bnrStyleInput = document.getElementById('bnr-style-input');
+        const bnrStyleLoader = document.getElementById('bnr-style-loader');
+        const bnrRatioOptions = document.getElementById('bnr-ratio-options');
+        const bnrGenerateBtn = document.getElementById('bnr-generate-btn');
+        const bnrResultsContainer = document.querySelector('#content-combine-text .flex-grow');
+        const bnrResultsGrid = document.getElementById('bnr-results-grid');
+
+        let bnrUploadedImageData = { base64: null, mimeType: null };
+
+        function bnrUpdateGenerateButtonState() {
+            const hasImage = !!bnrUploadedImageData.base64;
+            const hasDesc = bnrDescInput.value.trim().length > 0;
+            const hasStyle = bnrStyleInput.value.trim().length > 0;
+            bnrGenerateBtn.disabled = !hasImage || !hasDesc || !hasStyle;
+        }
+        
+        async function bnrAutoGenerateStyle() {
+            if (!bnrUploadedImageData.base64 || !bnrDescInput.value) return;
+
+            bnrStyleLoader.classList.remove('hidden');
+            lucide.createIcons();
+            bnrStyleInput.value = 'AI sedang membuat style...';
+            bnrStyleInput.disabled = true;
+            
+            try {
+                const targetUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent`;
+                const systemPrompt = `Anda adalah seorang fotografer profesional dan desainer grafis. Berdasarkan gambar yang diunggah dan teks banner, buatlah deskripsi gaya (style) yang sangat detail dalam bahasa Indonesia untuk AI generator gambar. Ikuti struktur ini dengan TEPAT, isi setiap bagian dengan analisis yang relevan:
+
+- Konsep & Mood Keseluruhan:
+- Spesifikasi Kamera & Lensa:
+- Visual Utama / Subjek Pahlawan:
+- Pengaturan Latar Belakang:
+- Elemen Latar Depan:
+- Detail Model (jika ada):
+- Pencahayaan & Palet Warna:
+- CTA (Call to Action):
+- Info Tambahan:
+
+Pastikan setiap poin diisi dengan deskripsi yang kreatif dan profesional. Jangan menambahkan poin lain.`;
+                const userQuery = `Analisis gambar ini untuk banner dengan teks: "${bnrDescInput.value.trim()}". Hasilkan deskripsi gaya sesuai dengan format yang diinstruksikan.`;
+                const payload = { contents: [{ parts: [ { text: userQuery }, { inlineData: { mimeType: bnrUploadedImageData.mimeType, data: bnrUploadedImageData.base64 } } ] }], systemInstruction: { parts: [{ text: systemPrompt }] } };
+
+                const response = await fetch('/api/generate', { 
+                    method: 'POST', 
+                    headers: { 'Content-Type': 'application/json' }, 
+                    body: JSON.stringify({ targetUrl, payload }) 
+                });
+                if (!response.ok) { throw new Error(`HTTP error! status: ${response.status}`); }
+                const result = await response.json();
+                const style = result.candidates[0].content.parts[0].text;
+                bnrStyleInput.value = style.trim().replace(/[*#]/g, '');
+            } catch(error) {
+                console.error("Error generating banner style:", error);
+                bnrStyleInput.value = "Gagal membuat style. Silakan isi manual.";
+            } finally {
+                bnrStyleLoader.classList.add('hidden');
+                bnrStyleInput.disabled = false;
+                bnrUpdateGenerateButtonState();
+            }
+        }
+
+        async function bnrAutoGenerateDescription() {
+            if (!bnrUploadedImageData.base64) return;
+            bnrDescLoader.classList.remove('hidden');
+            lucide.createIcons();
+            bnrDescInput.value = 'AI sedang membuat deskripsi...';
+            bnrDescInput.disabled = true;
+            try {
+                const targetUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent`;
+                const systemPrompt = `You are a creative copywriter. Analyze the image and write a very short, catchy text for an advertising banner in Indonesian. The text must be a maximum of 10 words.`;
+                const payload = { contents: [{ parts: [ { text: "Buatkan teks banner singkat untuk gambar ini." }, { inlineData: { mimeType: bnrUploadedImageData.mimeType, data: bnrUploadedImageData.base64 } } ] }], systemInstruction: { parts: [{ text: systemPrompt }] } };
+                
+                const response = await fetch('/api/generate', { 
+                    method: 'POST', 
+                    headers: { 'Content-Type': 'application/json' }, 
+                    body: JSON.stringify({ targetUrl, payload }) 
+                });
+                
+                if (!response.ok) { throw new Error(`HTTP error! status: ${response.status}`); }
+                const result = await response.json();
+                const description = result.candidates[0].content.parts[0].text;
+                bnrDescInput.value = description.trim().replace(/["*]/g, '');
+                await bnrAutoGenerateStyle();
+            } catch(error) {
+                console.error("Error generating banner description:", error);
+                bnrDescInput.value = "Gagal membuat deskripsi. Coba lagi.";
+                bnrDescLoader.classList.add('hidden');
+                bnrDescInput.disabled = false;
+            } finally {
+                bnrDescLoader.classList.add('hidden');
+                bnrDescInput.disabled = false;
+                bnrUpdateGenerateButtonState();
+            }
+        }
+
+        setupImageUpload(bnrImageInput, bnrImageUploadArea, (data) => {
+             bnrUploadedImageData = { base64: data.base64, mimeType: data.mimeType };
+             document.getElementById('bnr-image-preview').src = data.dataUrl;
+             document.getElementById('bnr-image-upload-area').classList.add('hidden');
+             document.getElementById('bnr-image-preview-container').classList.remove('hidden');
+             bnrUpdateGenerateButtonState();
+             bnrAutoGenerateDescription();
+        });
+        
+        document.getElementById('bnr-remove-image-btn').addEventListener('click', () => {
+             bnrUploadedImageData = { base64: null, mimeType: null };
+             document.getElementById('bnr-image-preview-container').classList.add('hidden');
+             document.getElementById('bnr-image-upload-area').classList.remove('hidden');
+             bnrDescInput.value = '';
+             bnrStyleInput.value = '';
+             bnrUpdateGenerateButtonState();
+        });
+        
+        bnrDescInput.addEventListener('input', bnrUpdateGenerateButtonState);
+        bnrStyleInput.addEventListener('input', bnrUpdateGenerateButtonState);
+        setupOptionButtons(bnrRatioOptions);
+        
+        bnrGenerateBtn.addEventListener('click', async () => {
+            if (!bnrUploadedImageData.base64) return;
+            bnrGenerateBtn.disabled = true;
+            bnrGenerateBtn.innerHTML = `<div class="loader-icon !border-l-white w-5 h-5"></div><span class="ml-2">Merancang Banner...</span>`;
+            
+            const aspectRatio = bnrRatioOptions.querySelector('.selected').dataset.value;
+            const aspectClass = getAspectRatioClass(aspectRatio);
+
+            bnrResultsContainer.classList.remove('hidden');
+            bnrResultsGrid.className = 'grid grid-cols-1 md:grid-cols-2 gap-6';
+            bnrResultsGrid.innerHTML = '';
+            for(let i=1; i<=4; i++) {
+                const card = document.createElement('div');
+                card.id = `bnr-card-${i}`;
+                card.className = `card overflow-hidden transition-all ${aspectClass} bg-gray-100 flex items-center justify-center`;
+                card.innerHTML = `<div class="loader-icon w-10 h-10"></div>`;
+                bnrResultsGrid.appendChild(card);
+            }
+            lucide.createIcons();
+            
+            try {
+                const bannerVariations = await getBannerVariations();
+                const generationPromises = bannerVariations.slice(0, 4).map((idea, index) => generateSingleBannerImage(index + 1, idea.title, idea.prompt, aspectRatio));
+                await Promise.allSettled(generationPromises);
+            } catch (error) {
+                console.error("Error during banner generation process:", error);
+                bnrResultsGrid.innerHTML = `<div class="col-span-1 md:col-span-2 text-center py-10 text-red-500"><p>Terjadi kesalahan saat membuat variasi banner: ${error.message}</p></div>`;
+            } finally {
+                bnrGenerateBtn.disabled = false;
+                bnrGenerateBtn.innerHTML = `<span>Buat 4 Variasi Poster</span>`;
+            }
+        });
+        
+        async function getBannerVariations() {
+            const targetUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent`;
+            const systemPrompt = `You are an expert AI graphic designer for social media banners. Analyze the provided image, banner text, and requested style. Generate 4 distinct banner design ideas. For each, provide a JSON object with a 'title' (short name in Indonesian) and a 'prompt' (detailed English prompt for an image generation AI). The prompt MUST instruct the AI to creatively place the provided banner text onto the original image, adhering to the specified style. Describe text placement, font style, color scheme, and any subtle background enhancements or graphic elements. The original image content must not be altered, only enhanced. Respond ONLY with a valid JSON array of 4 objects.`;
+            let userQuery = `Banner Text: "${bnrDescInput.value.trim()}"\nDesign Style: "${bnrStyleInput.value.trim()}"`;
+            
+            const parts = [{ text: userQuery }, { inlineData: { mimeType: bnrUploadedImageData.mimeType, data: bnrUploadedImageData.base64 } }];
+            const payload = { contents: [{ parts: parts }], systemInstruction: { parts: [{ text: systemPrompt }] }, generationConfig: { responseMimeType: "application/json", responseSchema: { type: "ARRAY", items: { type: "OBJECT", properties: { "title": { "type": "STRING" }, "prompt": { "type": "STRING" } }, required: ["title", "prompt"] } } } };
+            
+            const response = await fetch('/api/generate', { 
+                method: 'POST', 
+                headers: { 'Content-Type': 'application/json' }, 
+                body: JSON.stringify({ targetUrl, payload }) 
+            });
+
+            if (!response.ok) { const errorData = await response.json(); throw new Error(errorData.error?.message || `HTTP error! status: ${response.status}`); }
+            const result = await response.json();
+            const jsonText = result.candidates[0].content.parts[0].text;
+            return JSON.parse(jsonText);
+        }
+
+        async function generateSingleBannerImage(id, title, prompt, aspectRatio) {
+            const card = document.getElementById(`bnr-card-${id}`);
+            if (!card) return;
+            
+             try {
+                const targetUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image-preview:generateContent`;
+                const finalPrompt = `${prompt}. The text to add is: "${bnrDescInput.value.trim()}". Ensure the text is clearly visible and beautifully integrated. Aspect ratio: ${aspectRatio}.`;
+                const parts = [{ text: finalPrompt }, { inlineData: { mimeType: bnrUploadedImageData.mimeType, data: bnrUploadedImageData.base64 } }];
+                const payload = { contents: [{ parts: parts }], generationConfig: { responseModalities: ['IMAGE'] }, };
+                
+                const response = await fetch('/api/generate', { 
+                    method: 'POST', 
+                    headers: { 'Content-Type': 'application/json' }, 
+                    body: JSON.stringify({ targetUrl, payload }) 
+                });
+
+                if (!response.ok) throw new Error(`API error: ${response.statusText}`);
+                const result = await response.json();
+
+                const candidate = result.candidates?.[0];
+                if (!candidate) {
+                    throw new Error("Respon AI tidak valid: tidak ada kandidat.");
+                }
+                if (candidate.finishReason && candidate.finishReason !== 'STOP') {
+                     throw new Error(`Generasi dihentikan: ${candidate.finishReason}`);
+                }
+                const base64Data = candidate.content?.parts?.find(p => p.inlineData)?.inlineData?.data;
+
+                if (base64Data) {
+                    const imageUrl = `data:image/png;base64,${base64Data}`;
+                    const safeTitle = title.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+                    
+                    card.innerHTML = `<div class="relative w-full h-full group">
+                        <img src="${imageUrl}" class="w-full h-full object-cover rounded-md" alt="${title}">
+                        <div class="absolute bottom-2 right-2">
+                            <a href="${imageUrl}" download="banner_${id}_${safeTitle}.png" class="bg-teal-600 text-white p-2 rounded-full hover:bg-teal-700" title="Unduh Gambar">
+                                <i data-lucide="download" class="w-4 h-4"></i>
+                            </a>
+                        </div>
+                    </div>`;
+                    lucide.createIcons();
+                } else { throw new Error("Tidak ada data gambar yang diterima dari AI."); }
+            } catch (error) {
+                console.error(`Error for banner card ${id}:`, error);
+                let userMessage = 'Gagal memuat visual.';
+                if (error.message.includes('SAFETY')) {
+                    userMessage = 'Gagal (Filter Keamanan)';
+                }
+                card.innerHTML = `<div class="text-xs text-red-500 p-2 text-center">${userMessage}</div>`;
+            }
+        }
+        
+        function getAspectRatioClass(ratio) {
+            switch (ratio) {
+                case '1:1': return 'aspect-square';
+                case '16:9': return 'aspect-video';
+                case '9:16': return 'aspect-[9/16]';
+                case '4:3': return 'aspect-[4/3]';
+                case '3:4': return 'aspect-[3/4]';
+                default: return 'aspect-square';
+            }
+        }
+
+        lucide.createIcons();
+        switchTab('vto');
+        
+   document.getElementById('footer-text').innerHTML = '';
+
+    });
+    </script>
+
+</body>
+</html>
+
